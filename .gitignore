@@ -1,3 +1,4 @@
 .nitric/
 .env
 nitric.*.yaml
+.idea
