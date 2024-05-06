@@ -5,8 +5,20 @@ from nitric.context import HttpContext
 
 import os
 import requests
+import sentry_sdk
 
-from services.live365.services import run_check
+from live365.services import run_check
+
+sentry_sdk.init(
+    dsn="https://71a4a79653398bbbb12ee3fcc06c30bf@o4507009248067584.ingest.us.sentry.io/4507093378924544",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 main = api("monitor")
 

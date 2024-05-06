@@ -4,10 +4,15 @@ from urllib.parse import urlparse, parse_qs
 
 import jwt
 import requests
+import sentry_sdk
 
 from bs4 import BeautifulSoup
 
-from services.live365.models import Live365Stations
+from live365.models import Live365Stations
+
+
+class Live365AutoLoginException(Exception):
+    pass
 
 
 async def get_live365_access_token(session, save_token: Callable[[str], None] = None):
@@ -36,13 +41,25 @@ async def get_live365_access_token(session, save_token: Callable[[str], None] = 
         allow_redirects=False,
     )
 
-    authorize_reply = session.get(
-        login_reply.headers["location"],
-        allow_redirects=False,
-    )
+    try:
+        authorize_reply = session.get(
+            login_reply.headers["location"],
+            allow_redirects=False,
+        )
+    except KeyError:
+        sentry_sdk.capture_message(f"Failed to get authorize reply {login_reply.status_code}")
+        print(login_reply.status_code)
+        print(login_reply.content)
+        raise Live365AutoLoginException()
 
-    url = urlparse(authorize_reply.headers["location"])
-    access_token = parse_qs(url.fragment)["access_token"][0]
+    try:
+        url = urlparse(authorize_reply.headers["location"])
+        access_token = parse_qs(url.fragment)["access_token"][0]
+    except KeyError:
+        sentry_sdk.capture_message("Failed to get access token and URL")
+        print(authorize_reply.status_code)
+        print(authorize_reply.content)
+        raise Live365AutoLoginException()
 
     if save_token:
         await save_token(access_token)
@@ -87,10 +104,11 @@ async def run_check(previous_jwt: str, save_token):
             json={
                 "payload": {
                     "summary": "Live365 Station not relaying",
-                    "severity": "critical",
+                    "severity": "warning",
                     "source": "Live365 Monitor",
                 },
                 "routing_key": os.environ.get("PAGERDUTY_ROUTING_KEY"),
                 "event_action": "trigger",
+                "dedup_key": "live365",
             },
         )
