@@ -1,6 +1,4 @@
-name: live365-monitor
+name: alerting
 services:
     - match: services/*.py
-      runtime: ""
-      type: ""
       start: pipenv run dev $SERVICE_PATH
