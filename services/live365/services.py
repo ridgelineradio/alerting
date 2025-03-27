@@ -68,6 +68,7 @@ async def get_live365_access_token(session, save_token: Callable[[str], None] = 
 
 
 async def run_check(previous_jwt: str, save_token):
+    print("Running the check!")
     session = requests.Session()
 
     access_token = None
@@ -98,7 +99,7 @@ async def run_check(previous_jwt: str, save_token):
 
     stations = Live365Stations.model_validate(stations)
 
-    if stations.data[0].attributes.source != "Relay":
+    if stations.data[0].attributes.source not in ("Relay", "Live"):
         requests.post(
             "https://events.pagerduty.com/v2/enqueue",
             json={
