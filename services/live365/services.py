@@ -67,7 +67,7 @@ async def get_live365_access_token(session, save_token: Callable[[str], None] = 
     return access_token
 
 
-async def run_check(previous_jwt: str, save_token):
+async def run_check(previous_jwt: str | None, save_token):
     print("Running the check!")
     session = requests.Session()
 
@@ -82,7 +82,7 @@ async def run_check(previous_jwt: str, save_token):
             access_token = previous_jwt
             print("Using previous access token! hooray!")
     except Exception as exc:
-        # TODO: capture exception in Sentry
+        sentry_sdk.capture_exception(exc)
         print(exc)
 
     if not access_token:

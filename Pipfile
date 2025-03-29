@@ -10,6 +10,7 @@ pydantic = "*"
 requests = "*"
 PyJWT = "*"
 sentry-sdk = "*"
+uuid7 = "*"
 
 [scripts]
 dev = "watchmedo auto-restart -p '*.py' -R python -- -u"
