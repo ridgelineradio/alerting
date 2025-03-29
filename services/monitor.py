@@ -29,15 +29,17 @@ live365_monitor_app = schedule("live365-monitor")
 
 @live365_monitor_app.every("5 minutes")
 async def run_live365_monitor(ctx):
+    state = None
     previous_jwt = None
 
     try:
-        previous_jwt = (await monitor_state.get("previous_live365_token")).get("token")
+        state = await monitor_state.get("live365_state")
+        previous_jwt = state.get("token")
     except NotFoundException:
         pass
 
     async def save_token(token: str) -> None:
-        await monitor_state.set("previous_live365_token", {"token": token})
+        await monitor_state.set("live_365_state", {"token": token})
 
     await run_check(previous_jwt, save_token)
 

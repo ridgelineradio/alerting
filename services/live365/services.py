@@ -113,3 +113,12 @@ async def run_check(previous_jwt: str | None, save_token):
                 "dedup_key": "live365",
             },
         )
+    else:
+        requests.post(
+            "https://events.pagerduty.com/v2/enqueue",
+            json={
+                "routing_key": os.environ.get("PAGERDUTY_ROUTING_KEY"),
+                "dedup_key": "live365",
+                "event_action": "resolve",
+            },
+        )
