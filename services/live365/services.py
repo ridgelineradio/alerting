@@ -93,6 +93,9 @@ async def run_check(previous_jwt: str | None, save_token):
         headers={"Authorization": f"Bearer {access_token}"},
     )
 
+    if not stations_reply.ok:
+        return
+
     stations = stations_reply.json()
 
     print(stations)
