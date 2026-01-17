@@ -42,8 +42,11 @@ async def get_live365_access_token(session, save_token: Callable[[str], None] = 
     )
 
     try:
+        location = login_reply.headers["location"]
+        if "https://" not in location and "http://" not in location:
+            location = f"https://accounts.live365.com{location}"
         authorize_reply = session.get(
-            login_reply.headers["location"],
+            location,
             allow_redirects=False,
         )
     except KeyError:
