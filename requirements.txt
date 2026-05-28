@@ -8,4 +8,3 @@ requests==2.31.0
 PyJWT==2.8.0
 sentry-sdk==1.40.0
 uuid7==0.1.0
-nitric==1.2.4
