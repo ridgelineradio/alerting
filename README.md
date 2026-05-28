@@ -1,42 +1,99 @@
-<p align="center"><a href="https://nitric.io" target="_blank"><img src="https://raw.githubusercontent.com/nitrictech/nitric/main/docs/assets/nitric-logo.svg" height="120"></a></p>
+# Radio Alerting Service
 
-## About Nitric
+A containerized monitoring and alerting service for radio station operations. This service monitors Live365 station status and provides endpoints for silence detection alerts via PagerDuty.
 
-This is a [Nitric](https://nitric.io) Python project, but Nitric is a framework for rapid development of cloud-native and serverless applications in many languages.
+## Features
 
-Using Nitric you define your apps in terms of the resources they need, then write the code for serverless function based APIs, event subscribers and scheduled jobs.
+- **Live365 Monitoring**: Checks Live365 station status every 5 minutes
+- **Silence Detection**: API endpoints to trigger alerts when silence is detected
+- **PagerDuty Integration**: Automatic incident creation and resolution
+- **Health Checks**: Built-in health check endpoint for monitoring
 
-Apps built with Nitric can be deployed to AWS, Azure or Google Cloud all from the same code base so you can focus on your products, not your cloud provider.
+## Tech Stack
 
-Nitric makes it easy to:
+- **FastAPI**: Modern, fast web framework for building APIs
+- **Redis**: State management and persistence
+- **APScheduler**: Scheduled task execution
+- **Docker**: Containerization for easy deployment
 
-- Create smart [serverless functions and APIs](https://nitric.io/docs/apis)
-- Build reliable distributed apps that use [events](https://nitric.io/docs/messaging/topics) and/or [queues](https://nitric.io/docs/messaging/queues)
-- Securely store, retrieve and rotate [secrets](https://nitric.io/docs/secrets)
-- Read and write files from [buckets](https://nitric.io/docs/storage)
+## Local Development
 
-## Learning Nitric
+### Prerequisites
 
-Nitric provides detailed and intuitive [documentation](https://nitric.io/docs) and [guides](https://nitric.io/docs/getting-started) to help you get started quickly.
+- Python 3.11+
+- Docker and Docker Compose
+- Redis (if running without Docker)
 
-If you'd rather chat with the maintainers or community, come and join our [Discord](https://nitric.io/chat) server, [GitHub Discussions](https://github.com/nitrictech/nitric/discussions) or find us on [Twitter](https://twitter.com/nitric_io).
+### Setup
 
-## Running this project
-
-To run this project you'll need the [Nitric CLI](https://nitric.io/docs/installation) installed, then you can use the CLI commands to run, build or deploy the project.
-
-Start by making sure the project's dependencies have been installed.
-
-```bash
-pipenv install --dev
-```
-
-Next, start nitric services.
-
-> This will automatically restart when you make changes to your functions
+1. Install dependencies:
 
 ```bash
-nitric start
+pip install -r requirements.txt
 ```
 
-You'll see your services connect in your nitric start terminal.
+2. Copy environment variables:
+
+```bash
+cp .env.example .env
+```
+
+3. Edit `.env` with your credentials
+
+### Running Locally
+
+**With Docker Compose (recommended):**
+
+```bash
+docker-compose up
+```
+
+**Without Docker:**
+
+```bash
+# Start Redis
+redis-server
+
+# Run the application
+python main.py
+```
+
+The API will be available at `http://localhost:8000`
+
+## Deployment with Coolify
+
+### Option 1: Docker Compose Deployment
+
+1. In Coolify, create a new service
+2. Select "Docker Compose" as the deployment type
+3. Point to this repository
+4. Add environment variables in Coolify:
+   - `LIVE365_EMAIL`
+   - `LIVE365_PASSWORD`
+   - `PAGERDUTY_ROUTING_KEY`
+   - `SILENCE_KEY`
+5. Deploy
+
+### Option 2: Dockerfile Deployment
+
+1. In Coolify, create a new service
+2. Select "Dockerfile" as the deployment type
+3. Point to this repository
+4. Add a Redis service in Coolify
+5. Set environment variables:
+   - `REDIS_URL=redis://redis:6379`
+   - `LIVE365_EMAIL`
+   - `LIVE365_PASSWORD`
+   - `PAGERDUTY_ROUTING_KEY`
+   - `SILENCE_KEY`
+6. Deploy
+
+## API Endpoints
+
+- `GET /healthz` - Health check endpoint
+- `GET /silence?secret=<key>` - Trigger silence detection alert
+- `GET /returned?secret=<key>` - Resolve silence alert
+
+## Environment Variables
+
+See `.env.example` for required environment variables.
