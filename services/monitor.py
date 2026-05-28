@@ -15,7 +15,7 @@ sentry_sdk.init(
 import os
 import requests
 
-from live365.services import run_check
+from .live365.services import run_check
 
 from nitric.resources import api, schedule, kv
 from nitric.application import Nitric

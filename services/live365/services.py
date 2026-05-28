@@ -8,7 +8,7 @@ import sentry_sdk
 
 from bs4 import BeautifulSoup
 
-from live365.models import Live365Stations
+from .models import Live365Stations
 
 
 class Live365AutoLoginException(Exception):
